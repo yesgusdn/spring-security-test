@@ -1,11 +1,11 @@
 package com.in28minutes.learn_spring_security.auth;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
-@NoArgsConstructor
-public class LoginRequestDto {
+@Setter
+public class LoginDto {
 	private String username;
 	private String password;
 }
