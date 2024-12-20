@@ -1,10 +1,9 @@
 package com.in28minutes.learn_spring_security.security;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -15,16 +14,12 @@ import com.in28minutes.learn_spring_security.jwt.JwtUtil;
 import com.in28minutes.learn_spring_security.user.CustomUserDetailsService;
 
 @Configuration
-@EnableWebSecurity
 public class SecurityConfig {
     
-	@Autowired
-	private CustomUserDetailsService  userDetailsService;
-	
-	@Autowired
+	private CustomUserDetailsService  userDetailsService;	
 	private JwtUtil jwtUtil;
-		
-	public SecurityConfig(CustomUserDetailsService userDetailsService, JwtUtil jwtUtil) {
+	
+	public SecurityConfig(@Lazy CustomUserDetailsService userDetailsService, JwtUtil jwtUtil) {
 		this.userDetailsService = userDetailsService;
 		this.jwtUtil = jwtUtil;
 	}
@@ -36,7 +31,7 @@ public class SecurityConfig {
 					csrfConfig.disable()
 			)
 			.authorizeHttpRequests(auth -> auth
-					.requestMatchers("/auth/login", "/auth/register","/h2-console/**").permitAll()
+					.requestMatchers("/api/auth/**", "/auth/register","/h2-console/**").permitAll()
 					.requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
 					.anyRequest().authenticated()
 				)

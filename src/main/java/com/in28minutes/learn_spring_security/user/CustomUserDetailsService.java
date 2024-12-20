@@ -1,5 +1,7 @@
 package com.in28minutes.learn_spring_security.user;
 
+import java.util.List;
+
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -10,14 +12,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class CustomUserDetailsService implements UserDetailsService{
 	
 	private final UserRepository userRepository;
-
 	private final PasswordEncoder passwordEncoder;
 
 	public CustomUserDetailsService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
 		this.userRepository = userRepository;
-		this.passwordEncoder = passwordEncoder;
+		this.passwordEncoder= passwordEncoder;
 	}
-
+     
     @Override
     public CustomUserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
     	User user = userRepository.findByUsername(username)
@@ -27,9 +28,16 @@ public class CustomUserDetailsService implements UserDetailsService{
     
     @Transactional
     public void createUser(User user) {
-    	String encodedPassword = passwordEncoder.encode(user.getPassword());
-    	user.setPassword(encodedPassword);
-    	userRepository.save(user);
-    }
+        String encodedPassword = passwordEncoder.encode(user.getPassword());
+        user.setPassword(encodedPassword);
+        List<String> roles = List.of("ROLE_ADMIN", "ROLE_USER");
+        user.setRoles(roles);
+        user.setEnabled(false);
+        user.setAccountNonExpired(false);
+        user.setAccountNonLocked(false);
+        user.setCredentialsNonExpired(false);
+
+        userRepository.save(user);
+    }    
     
 }

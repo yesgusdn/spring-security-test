@@ -1,5 +1,6 @@
 package com.in28minutes.learn_spring_security.auth;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,6 +25,8 @@ public class AuthController {
 	private AuthenticationManagerBuilder authenticationManagerBuilder;	
 	private CustomUserDetailsService userDetailsService;
 	
+	private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
+	
 	public AuthController(JwtUtil jwtUtil, AuthenticationManagerBuilder authenticationManagerBuilder, CustomUserDetailsService userDetailsService) {
 		this.jwtUtil = jwtUtil;
 		this.authenticationManagerBuilder = authenticationManagerBuilder;
@@ -35,12 +38,21 @@ public class AuthController {
 		UsernamePasswordAuthenticationToken authenticationToken =
 				new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword());
 		
-		Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-		SecurityContextHolder.getContext().setAuthentication(authentication);
+		try {
+			System.out.println("Creating authentication token");
+			Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+			SecurityContextHolder.getContext().setAuthentication(authentication);
+			System.out.println("Authentication successful");
+			String jwt = jwtUtil.generateToken(authentication);
+			return ResponseEntity.ok(new JwtDto(jwt));
+		} catch (Exception e) {
+			System.err.println("Authentication failed: " + e.getMessage());
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authentication failed");
+		}
 		
-		String jwt = jwtUtil.generateToken(authentication);
+	
 		
-		return ResponseEntity.ok(new JwtDto(jwt));
+		
 	}
 	
     @PostMapping("/signup")
